@@ -1,7 +1,48 @@
 export type Category = 'database' | 'integration' | 'ui-ux' | 'content'
 
-export type PromptLevel = 'mid' | 'expert'
+export type PromptLevel = 'junior' | 'mid' | 'senior'
 
+// User types
+export interface User {
+  id: string
+  email: string
+  password: string
+  full_name?: string
+  admin: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface UserInsert {
+  email: string
+  password: string
+  full_name?: string
+  admin?: boolean
+}
+
+// Project types
+export interface Project {
+  id: string
+  name: string
+  description?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ProjectInsert {
+  name: string
+  description?: string
+}
+
+// User-Project relationship
+export interface UserProject {
+  id: string
+  user_id: string
+  project_id: string
+  created_at: string
+}
+
+// Prompt types
 export interface Prompt {
   id: string
   title: string
@@ -36,6 +77,44 @@ export interface PromptUpdate {
   tags?: string[]
   level?: PromptLevel
   example_context?: string
+}
+
+// User-Project-Prompt relationship
+export interface UserProjectPrompt {
+  id: string
+  user_project_id: string
+  prompt_id: string
+  created_at: string
+}
+
+// Extended types for reports
+export interface UserWithStats {
+  id: string
+  email: string
+  full_name?: string
+  admin: boolean
+  total_prompts: number
+  total_projects: number
+  created_at: string
+}
+
+export interface ProjectWithStats {
+  id: string
+  name: string
+  description?: string
+  total_users: number
+  total_prompts: number
+  created_at: string
+}
+
+export interface UserProjectReport {
+  user_id: string
+  user_email: string
+  user_name?: string
+  project_id: string
+  project_name: string
+  prompt_count: number
+  last_prompt_at?: string
 }
 
 export const categoryConfig: Record<Category, { label: string; description: string; gradient: string; icon: string }> = {

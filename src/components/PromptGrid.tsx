@@ -9,6 +9,7 @@ import { categoryConfig } from '@/types/database'
 
 interface PromptGridProps {
   initialPrompts: Prompt[]
+  projectId?: string
 }
 
 const categoryIcons: Record<Category, React.ReactNode> = {
@@ -18,7 +19,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   content: <Globe className="w-5 h-5" />,
 }
 
-export default function PromptGrid({ initialPrompts }: PromptGridProps) {
+export default function PromptGrid({ initialPrompts, projectId }: PromptGridProps) {
   const [prompts] = useState<Prompt[]>(initialPrompts)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all')
@@ -176,7 +177,11 @@ export default function PromptGrid({ initialPrompts }: PromptGridProps) {
 
       {/* Form Modal */}
       {showForm && (
-        <PromptForm prompt={editingPrompt} onClose={handleCloseForm} />
+        <PromptForm
+          prompt={editingPrompt}
+          onClose={handleCloseForm}
+          projectId={projectId}
+        />
       )}
     </div>
   )

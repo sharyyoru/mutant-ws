@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { X, Database, Workflow, Palette, Globe } from 'lucide-react'
 import type { Prompt, PromptInsert, Category, PromptLevel } from '@/types/database'
 import { createPrompt, updatePrompt } from '@/lib/actions'
+import { createPromptInProject, updatePromptInProject } from '@/lib/user-actions'
 import { categoryConfig } from '@/types/database'
 
 interface PromptFormProps {
   prompt?: Prompt
   onClose: () => void
+  projectId?: string
 }
 
 const categoryIcons: Record<Category, React.ReactNode> = {
@@ -18,7 +20,7 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   content: <Globe className="w-4 h-4" />,
 }
 
-export default function PromptForm({ prompt, onClose }: PromptFormProps) {
+export default function PromptForm({ prompt, onClose, projectId }: PromptFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     title: prompt?.title || '',
@@ -47,16 +49,27 @@ export default function PromptForm({ prompt, onClose }: PromptFormProps) {
     }
 
     let result
-    if (prompt) {
-      result = await updatePrompt(prompt.id, data)
+    if (projectId) {
+      // User is creating/editing within a project
+      if (prompt) {
+        result = await updatePromptInProject(prompt.id, projectId, data)
+      } else {
+        result = await createPromptInProject(projectId, data)
+      }
     } else {
-      result = await createPrompt(data)
+      // Admin or general prompt management
+      if (prompt) {
+        result = await updatePrompt(prompt.id, data)
+      } else {
+        result = await createPrompt(data)
+      }
     }
 
     setIsSubmitting(false)
 
     if (result.success) {
       onClose()
+      window.location.reload()
     } else {
       alert('Error: ' + result.error)
     }
@@ -154,6 +167,17 @@ export default function PromptForm({ prompt, onClose }: PromptFormProps) {
               <div className="flex gap-2">
                 <button
                   type="button"
+                  onClick={() => setFormData({ ...formData, level: 'junior' })}
+                  className={`flex-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                    formData.level === 'junior'
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                  }`}
+                >
+                  Junior
+                </button>
+                <button
+                  type="button"
                   onClick={() => setFormData({ ...formData, level: 'mid' })}
                   className={`flex-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                     formData.level === 'mid'
@@ -165,14 +189,14 @@ export default function PromptForm({ prompt, onClose }: PromptFormProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, level: 'expert' })}
+                  onClick={() => setFormData({ ...formData, level: 'senior' })}
                   className={`flex-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
-                    formData.level === 'expert'
+                    formData.level === 'senior'
                       ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
                       : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
                   }`}
                 >
-                  Expert
+                  Senior
                 </button>
               </div>
             </div>
